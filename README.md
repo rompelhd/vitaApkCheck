@@ -16,7 +16,12 @@ Python script to analyze an Android APK file to help determine if the Android ga
 
 This script is provided as is.
 
-**Note:** This script assumes that VitaSDK is installed using MSYS2 and at the following location, `C:\msys64\usr\local\vitasdk\`. 
+**Note:**
+This script assumes that VitaSDK is properly installed and configured.
+
+On Windows, it expects VitaSDK to be installed via MSYS2 at: `C:\msys64\usr\local\vitasdk\`
+
+On Linux, it assumes that VitaSDK is installed and available in your environment, with the VITASDK environment variable set and its tools accessible from your PATH.
 
 ### Usage ###
 Run the following command, `python .\vitaApkCheck.py` with the first argument being a directory of APK files or a single APK file.
