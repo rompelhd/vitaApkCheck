@@ -1,27 +1,40 @@
 # vitaApkCheck
 
-Python script to analyze an Android APK file to help determine if the Android game is a good candidate to be ported to the PlayStation Vita or not. 
+Python script to analyze an Android APK file to help determine whether a game is a good candidate for porting to the PlayStation Vita.
 
-### Requirements ###
-* Python 3.x with the following libraries
-    * os
-    * fnmatch
-    * math
-    * shutil
-    * subprocess
-    * sys
-    * ZipFile
-    * APK
-* VitaSDK
+## Requirements
 
-**Note:**
+- Python 3.x
+- pyaxmlparser (used for APK parsing)
+- VitaSDK
+
+Install Python dependency with:
+pip install pyaxmlparser
+
+> Note: Standard Python libraries (os, sys, zipfile, etc.) are already included with Python and do not need to be installed.
+
+## Note
+
 This script assumes that VitaSDK is properly installed and configured.
 
-On Windows, it expects VitaSDK to be installed via MSYS2 at: `C:\msys64\usr\local\vitasdk\`.
+- **Windows:**  
+  VitaSDK should be installed via MSYS2 at:  
+  `C:\msys64\usr\local\vitasdk\`
 
-On Linux, it assumes that VitaSDK is installed and available in your environment, with the VITASDK environment variable set and its tools accessible from your PATH.
+- **Linux:**  
+  VitaSDK must be installed and available in your environment.  
+  The `VITASDK` environment variable should be set and its tools accessible from your `PATH`.
 
-### Usage ###
-Run the following command, `python .\vitaApkCheck.py` with the first argument being a directory of APK files or a single APK file.
+## Usage
 
-The script will analyze the file and display the findings.
+python3 vitaApkCheck.py <apk_file_or_directory>
+
+Example:
+
+python3 vitaApkCheck.py mygame.apk
+
+The script will analyze the APK and display the results.
+
+## Example Output
+
+<img width="651" height="719" alt="image" src="https://github.com/user-attachments/assets/6c966d19-5c1a-4e24-b76a-888b3cdd6cd3" />
