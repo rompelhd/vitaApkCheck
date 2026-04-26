@@ -4,6 +4,9 @@ import math
 import shutil
 import subprocess
 import sys
+import contextlib
+import io
+import json
 from zipfile import ZipFile
 from pyaxmlparser import APK
 
@@ -18,7 +21,7 @@ if IS_WINDOWS:
     READ_ELF_PATH = os.path.join(BIN_DIRECTORY, "readelf.exe")
     OBJDUMP_PATH = os.path.join(BIN_DIRECTORY, "objdump.exe")
 else:
-	# Linux has it in the PATH, right?
+	# Linux has it in the PATH, right bro?
     READ_ELF_PATH = shutil.which("readelf") or "readelf"
     OBJDUMP_PATH = shutil.which("objdump") or "objdump"
 
@@ -41,6 +44,70 @@ ly = "\033[93m"
 mg = "\033[95m"
 cy = "\033[96m"
 w = "\033[97m"
+
+
+@contextlib.contextmanager
+def suppress_native_stdout_stderr():
+    saved_out = os.dup(1)
+    saved_err = os.dup(2)
+    try:
+        with open(os.devnull, "w") as devnull:
+            os.dup2(devnull.fileno(), 1)  # stdout
+            os.dup2(devnull.fileno(), 2)  # stderr
+            yield
+    finally:
+        os.dup2(saved_out, 1)
+        os.dup2(saved_err, 2)
+        os.close(saved_out)
+        os.close(saved_err)
+
+
+def get_apk_info_subprocess(apk_path: str):
+    py_code = r'''
+import json
+import sys
+from pyaxmlparser import APK
+
+apk_path = sys.argv[1]
+apk = APK(apk_path)
+print(json.dumps({
+    "application": apk.application,
+    "package": apk.package,
+    "version_name": apk.version_name,
+    "version_code": apk.version_code
+}))
+'''
+    p = subprocess.Popen(
+        [sys.executable, "-c", py_code, apk_path],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True
+    )
+    out, err = p.communicate()
+
+    noisy = "res1 is not zero!"
+    clean_out_lines = [ln for ln in out.splitlines() if noisy not in ln]
+    clean_err_lines = [ln for ln in err.splitlines() if noisy not in ln]
+
+    data = None
+    for ln in clean_out_lines[::-1]:
+        ln = ln.strip()
+        if ln.startswith("{") and ln.endswith("}"):
+            try:
+                data = json.loads(ln)
+                break
+            except Exception:
+                pass
+
+    for ln in clean_err_lines:
+        if ln.strip():
+            print(f"{lr}[pyaxmlparser] {ln}{x}", file=sys.stderr)
+
+    if data is None and p.returncode != 0:
+        raise RuntimeError(f"pyaxmlparser failed with exit code {p.returncode}")
+
+    return data
+
 
 def convert_size(size_bytes: int) -> str:
     if size_bytes == 0:
@@ -114,6 +181,7 @@ def list_apks(path: str):
         return path, fnmatch.filter(files, APK_PATTERN)
     return None, []
 
+
 def check_apk(check_apk_path: str):
     source_folder, apk_files = list_apks(check_apk_path)
 
@@ -142,12 +210,13 @@ def check_apk(check_apk_path: str):
         port_verdict_reason_list = []
 
         try:
-            apk_info = APK(apk_path)
+            apk_info = get_apk_info_subprocess(apk_path)
+
             if apk_info:
-                print(f"Name: {lg}{apk_info.application}{x}")
-                print(f"Package: {lg}{apk_info.package}{x}")
-                print(f"Version: {lg}{apk_info.version_name}{x}")
-                print(f"Code: {lg}{apk_info.version_code}{x}")
+                print(f"Name: {lg}{apk_info.get('application')}{x}")
+                print(f"Package: {lg}{apk_info.get('package')}{x}")
+                print(f"Version: {lg}{apk_info.get('version_name')}{x}")
+                print(f"Code: {lg}{apk_info.get('version_code')}{x}")
 
             with ZipFile(apk_path) as zip_archive:
                 print("Checking libs")
