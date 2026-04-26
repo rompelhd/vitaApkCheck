@@ -229,6 +229,10 @@ def check_apk(check_apk_path: str):
                     if not file_name.startswith("lib"):
                         continue
 
+                    # Ignore arm64 for PSVita (32-bit target)
+                    if file_name.startswith("lib/arm64-v8a/"):
+                        continue
+
                     za_lib_list.append(file_name)
                     file_size = convert_size(zip_archive.getinfo(file_name).file_size)
 
