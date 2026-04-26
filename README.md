@@ -29,10 +29,6 @@ This script assumes that VitaSDK is properly installed and configured.
 
 python3 vitaApkCheck.py <apk_file_or_directory>
 
-Example:
-
-python3 vitaApkCheck.py mygame.apk
-
 The script will analyze the APK and display the results.
 
 ## Example Output
