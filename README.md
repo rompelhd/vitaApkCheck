@@ -33,4 +33,5 @@ The script will analyze the APK and display the results.
 
 ## Example Output
 
-<img width="651" height="719" alt="image" src="https://github.com/user-attachments/assets/6c966d19-5c1a-4e24-b76a-888b3cdd6cd3" />
+<img width="651" height="686" alt="image" src="https://github.com/user-attachments/assets/bf9977cb-9c09-41c3-92c3-b4e3cef26fa0" />
+
